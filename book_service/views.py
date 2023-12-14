@@ -14,7 +14,7 @@ class BookViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_queryset(self):
-        """Retrieve the books with filters"""
+        """Receive the books with filters"""
         title = self.request.query_params.get("title")
         queryset = self.queryset
 
