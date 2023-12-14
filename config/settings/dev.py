@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # 3d party apps
 
     # custom apps
-
+    "user",
 ]
 
 MIDDLEWARE = [
