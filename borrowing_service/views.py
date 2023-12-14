@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from borrowing_service.models import Borrowing
 from borrowing_service.serializers import (BorrowingSerializer,
-                                           BorrowingListSerializer)
+                                           BorrowingListSerializer,
+                                           BorrowingDetailSerializer)
 
 
 class BorrowingViewSet(
@@ -20,6 +21,8 @@ class BorrowingViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return BorrowingListSerializer
+        if self.action == "retrieve":
+            return BorrowingDetailSerializer
         return BorrowingSerializer
 
     def get_queryset(self):
