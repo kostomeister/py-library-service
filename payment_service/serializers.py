@@ -4,7 +4,6 @@ from payment_service.models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Payment
         fields = (
@@ -14,21 +13,14 @@ class PaymentSerializer(serializers.ModelSerializer):
             "borrowing",
             "session_url",
             "session_id",
-            "money_to_pay"
+            "money_to_pay",
         )
 
 
 class PaymentListSerializer(PaymentSerializer):
-
     class Meta:
         model = Payment
-        fields = (
-            "id",
-            "status",
-            "type",
-            "borrowing",
-            "money_to_pay"
-        )
+        fields = ("id", "status", "type", "borrowing", "money_to_pay")
 
 
 class PaymentDetailSerializer(PaymentSerializer):
@@ -48,5 +40,5 @@ class PaymentDetailSerializer(PaymentSerializer):
             "book",
             "money_to_pay",
             "session_url",
-            "session_id"
+            "session_id",
         )
