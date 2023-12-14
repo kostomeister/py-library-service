@@ -5,20 +5,23 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('book_service', '0001_initial'),
-        ('borrowing_service', '0001_initial'),
+        ("book_service", "0001_initial"),
+        ("borrowing_service", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='borrowing',
-            options={'ordering': ('-borrow_date',)},
+            name="borrowing",
+            options={"ordering": ("-borrow_date",)},
         ),
         migrations.AlterField(
-            model_name='borrowing',
-            name='book_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='borrowings', to='book_service.book'),
+            model_name="borrowing",
+            name="book_id",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="borrowings",
+                to="book_service.book",
+            ),
         ),
     ]

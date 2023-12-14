@@ -4,19 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('book_service', '0001_initial'),
+        ("book_service", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='book',
-            options={'ordering': ['title']},
+            name="book",
+            options={"ordering": ["title"]},
         ),
         migrations.AlterField(
-            model_name='book',
-            name='cover',
-            field=models.CharField(choices=[('Hard', 'Hard'), ('Soft', 'Soft')], max_length=20),
+            model_name="book",
+            name="cover",
+            field=models.CharField(
+                choices=[("Hard", "Hard"), ("Soft", "Soft")], max_length=20
+            ),
         ),
     ]

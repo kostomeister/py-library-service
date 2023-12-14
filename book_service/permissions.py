@@ -1,8 +1,10 @@
 from rest_framework import permissions
 
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to only allow admin users to create, update, or delete objects,
+    Custom permission to only allow admin users
+    to create, update, or delete objects,
     while allowing non-authenticated users to read-only access.
     """
 

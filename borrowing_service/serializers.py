@@ -10,21 +10,19 @@ from user.serializers import UserSerializer
 class BorrowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
-        fields = (
-            "id",
-            "borrow_date",
-            "expected_return_date",
-            "book_id",
-            "user_id"
-        )
+        fields = ("id",
+                  "borrow_date",
+                  "expected_return_date",
+                  "book_id",
+                  "user_id")
         read_only_fields = ("user_id",)
 
     def validate(self, data):
         super().validate(data)
-        
+
         book_id = data["book_id"].id
         book = Book.objects.get(pk=book_id)
-        
+
         expected_return_date = data["expected_return_date"]
         current_time = timezone.now()
 
@@ -47,7 +45,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
         book_instance = Book.objects.get(pk=book_id)
         book_instance.inventory -= 1
         book_instance.save()
-        
+
         borrowing = Borrowing.objects.create(**validated_data)
 
         return borrowing
@@ -74,7 +72,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return",
             "book",
-            "user"
+            "user",
         )
 
 
@@ -82,4 +80,3 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("id", "actual_return")
-

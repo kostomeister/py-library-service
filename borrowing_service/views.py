@@ -6,10 +6,12 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from borrowing_service.models import Borrowing
-from borrowing_service.serializers import (BorrowingSerializer,
-                                           BorrowingListSerializer,
-                                           BorrowingDetailSerializer,
-                                           BorrowingReturnSerializer)
+from borrowing_service.serializers import (
+    BorrowingSerializer,
+    BorrowingListSerializer,
+    BorrowingDetailSerializer,
+    BorrowingReturnSerializer,
+)
 
 
 class BorrowingViewSet(
@@ -48,16 +50,19 @@ class BorrowingViewSet(
 
         return queryset
 
-    @action(methods=["POST"],
-            detail=True,
-            url_path="return",
-            permission_classes=[IsAdminUser])
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="return",
+        permission_classes=[IsAdminUser],
+    )
     def return_book(self, request, pk=None):
         borrowing = self.get_object()
         if borrowing.actual_return:
             return Response(
                 {"error": "The borrowing has already been returned."},
-                status=status.HTTP_400_BAD_REQUEST)
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         borrowing.actual_return = timezone.now().date()
 
@@ -67,5 +72,7 @@ class BorrowingViewSet(
         book.save()
         borrowing.save()
 
-        return Response({"message": "Borrowing returned successfully."},
-                        status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Borrowing returned successfully."},
+            status=status.HTTP_200_OK
+        )
