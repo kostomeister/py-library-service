@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # custom apps
     "user",
     "book_service",
+    "borrowing_service"
 ]
 
 MIDDLEWARE = [
