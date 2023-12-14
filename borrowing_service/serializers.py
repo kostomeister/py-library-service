@@ -18,9 +18,12 @@ class BorrowingSerializer(serializers.ModelSerializer):
         read_only_fields = ("user_id",)
 
     def validate(self, data):
+      
         super().validate(data)
+        
         book_id = data["book_id"].id
         book = Book.objects.get(pk=book_id)
+        
         expected_return_date = data["expected_return_date"]
         current_time = timezone.now()
 
@@ -43,7 +46,9 @@ class BorrowingSerializer(serializers.ModelSerializer):
         book_instance = Book.objects.get(pk=book_id)
         book_instance.inventory -= 1
         book_instance.save()
+        
         borrowing = Borrowing.objects.create(**validated_data)
+        
         return borrowing
 
 
