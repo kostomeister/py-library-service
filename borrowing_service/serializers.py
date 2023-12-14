@@ -1,4 +1,7 @@
 from rest_framework import serializers
+from django.utils import timezone
+
+from book_service.models import Book
 from borrowing_service.models import Borrowing
 
 
@@ -9,10 +12,39 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "id",
             "borrow_date",
             "expected_return_date",
-            "actual_return",
             "book_id",
-            "user_id",
+            "user_id"
         )
+        read_only_fields = ("user_id",)
+
+    def validate(self, data):
+        super().validate(data)
+        book_id = data["book_id"].id
+        book = Book.objects.get(pk=book_id)
+        expected_return_date = data["expected_return_date"]
+        current_time = timezone.now()
+
+        if book.inventory < 1:
+            raise serializers.ValidationError(
+                "This book is not available for borrowing now"
+            )
+
+        if expected_return_date < current_time.date():
+            raise serializers.ValidationError(
+                "Expected return date cannot be in the past."
+            )
+        return data
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user_id"] = user
+
+        book_id = validated_data["book_id"].id
+        book_instance = Book.objects.get(pk=book_id)
+        book_instance.inventory -= 1
+        book_instance.save()
+        borrowing = Borrowing.objects.create(**validated_data)
+        return borrowing
 
 
 class BorrowingListSerializer(serializers.ModelSerializer):
