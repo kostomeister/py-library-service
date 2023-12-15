@@ -7,6 +7,10 @@ from payment_service.calculation_of_the_amount_to_be_paid import (
     calculating_total_sum_for_begin_of_borrowing,
     calculating_sum_of_fine
 )
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_API_KEY")
 
