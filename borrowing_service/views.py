@@ -58,6 +58,7 @@ class BorrowingViewSet(
     )
     def return_book(self, request, pk=None):
         borrowing = self.get_object()
+
         if borrowing.actual_return:
             return Response(
                 {"error": "The borrowing has already been returned."},
