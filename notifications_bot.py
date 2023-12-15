@@ -15,6 +15,8 @@ from aiogram.types import Message, BotCommand
 
 from django.conf import settings
 from django.apps import apps
+
+
 conf = {
     "SECRET_KEY":
         'django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a',
@@ -30,6 +32,7 @@ conf = {
         "user",
         "book_service",
         "notifications",
+        "borrowing_service"
     ],
     "DATABASES": {
         'default': {
@@ -44,6 +47,8 @@ settings.configure(**conf)
 apps.populate(settings.INSTALLED_APPS)
 
 from notifications.models import Notification
+from borrowing_service.models import Borrowing
+from book_service.models import Book
 
 
 load_dotenv()
@@ -55,7 +60,7 @@ dp = Dispatcher()
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     text = message.text
-    user_id = text[text.find("userid") + 6:]
+    user_id = int(text[text.find("userid") + 6:])
     user_token = text[7:text.find("userid")]
 
     await (sync_to_async(Notification.objects.create)
@@ -70,6 +75,29 @@ async def command_start_handler(message: Message) -> None:
                          f"I will help you to keep track "
                          f"of your borrowings in our library. \n\n"
                          f"{hbold('Happy reading!')} \U0001F970")
+
+
+@dp.message(Command("myborrowings"))
+async def get_borrowings_handler(message: Message) -> None:
+    notification = await (sync_to_async(Notification.objects.get)
+                          (telegram_username=message.from_user.username))
+
+    user_id = notification.user_id
+
+    user_borrowings = await (sync_to_async(Borrowing.objects.filter)
+                             (user_id=user_id))
+
+    message_text = "Here are all of your current borrowings: \n"
+
+    for borrowing in await sync_to_async(list)(user_borrowings):
+        book_id = await sync_to_async(lambda: borrowing.book_id_id)()
+
+        book = await sync_to_async(Book.objects.get)(id=book_id)
+        return_date = await sync_to_async(lambda: borrowing.expected_return_date)()
+
+        message_text += f"{str(book)} - expected to return {return_date}\n"
+
+    await message.answer(message_text)
 
 
 async def main() -> None:

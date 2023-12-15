@@ -1,10 +1,19 @@
+import os
+
+import stripe
 from rest_framework import serializers
 from django.utils import timezone
+
+from dotenv import load_dotenv
 
 from book_service.models import Book
 from book_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
+from payment_service.models import Payment
+from payment_service.stripe_helper import create_initial_session
 from user.serializers import UserSerializer
+
+load_dotenv()
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -36,6 +45,8 @@ class BorrowingSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        stripe.api_key = os.environ.get("STRIPE_SECRET_API_KEY")
+
         user = self.context["request"].user
         validated_data["user_id"] = user
 
@@ -45,6 +56,17 @@ class BorrowingSerializer(serializers.ModelSerializer):
         book_instance.save()
 
         borrowing = Borrowing.objects.create(**validated_data)
+
+        session = create_initial_session(borrowing, self.context["request"])
+
+        Payment.objects.create(
+            status=Payment.StatusChoices.PENDING,
+            type=Payment.TypeChoices.PAYMENT,
+            borrowing=borrowing,
+            session_url=session.url,
+            session_id=session.id,
+            money_to_pay=session.amount_total / 100,
+        )
 
         return borrowing
 
