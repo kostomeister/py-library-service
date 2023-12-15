@@ -3,13 +3,12 @@ import requests
 
 from notifications.models import Notification
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-
 
 def send_message(chat_id, notification_text):
-    return requests.get(
-        f"https://api.telegram.org/bot{BOT_TOKEN}"
-        f"/sendMessage?chat_id={chat_id}&text={notification_text}")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN")
+
+    return requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}"
+                        f"/sendMessage?chat_id={chat_id}&text={notification_text}")
 
 
 def notify_overdue_borrowing(user_id):
