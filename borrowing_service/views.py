@@ -74,5 +74,5 @@ class BorrowingViewSet(
         borrowing.save()
 
         return Response(
-            {"message": "Borrowing returned successfully."},
-            status=status.HTTP_200_OK)
+            {"message": "Borrowing returned successfully."}, status=status.HTTP_200_OK
+        )
