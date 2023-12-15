@@ -3,14 +3,15 @@ import logging
 import os
 import sys
 
+import requests
+from aiogram.utils.markdown import *
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-
+from aiogram.filters import CommandStart, Command
+from aiogram.types import Message, BotCommand
 
 from django.conf import settings
 from django.apps import apps
@@ -58,12 +59,17 @@ async def command_start_handler(message: Message) -> None:
     user_token = text[7:text.find("userid")]
 
     await (sync_to_async(Notification.objects.create)
-           (user_id=user_id, connect_token=user_token))
+           (user_id=user_id,
+            connect_token=user_token,
+            telegram_username=message.from_user.username,
+            chat_id=message.chat.id))
 
-    created_notification = await (sync_to_async(Notification.objects.get)
-                                  (user_id=user_id))
+    await (sync_to_async(Notification.objects.get)(user_id=user_id))
 
-    await message.answer(str(created_notification))
+    await message.answer(f"Hi, {hbold(message.from_user.username)}! \n\n"
+                         f"I will help you to keep track "
+                         f"of your borrowings in our library. \n\n"
+                         f"{hbold("Happy reading!")} \U0001F970")
 
 
 async def main() -> None:
