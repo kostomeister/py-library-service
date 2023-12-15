@@ -24,9 +24,7 @@ class PaymentListSerializer(PaymentSerializer):
 
 
 class PaymentDetailSerializer(PaymentSerializer):
-    book = serializers.CharField(
-        source="borrowing.book_id.title", read_only=True
-    )
+    book = serializers.CharField(source="borrowing.book_id.title", read_only=True)
     return_date = serializers.CharField(
         source="borrowing.expected_return_date", read_only=True
     )

@@ -91,8 +91,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
         response = self.client.post(BORROWING_URL, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         expected_error_message = "Expected return date cannot be in the past."
-        self.assertEqual(expected_error_message,
-                         response.data["non_field_errors"][0])
+        self.assertEqual(expected_error_message, response.data["non_field_errors"][0])
 
     def test_create_borrowing_with_invalid_book_inventory(self):
         payload = {
@@ -102,8 +101,7 @@ class AuthenticatedBorrowingApiTest(TestCase):
         response = self.client.post(BORROWING_URL, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         expected_error_message = "This book is not available for borrowing now"
-        self.assertEqual(expected_error_message,
-                         response.data["non_field_errors"][0])
+        self.assertEqual(expected_error_message, response.data["non_field_errors"][0])
 
     def test_retrieve_borrowing(self):
         response = self.client.get(detail_url(self.borrowing1.id))
@@ -167,9 +165,7 @@ class AdminBorrowingApiTest(TestCase):
 
     def test_return_book(self):
         inventory = self.book.inventory
-        response = self.client.post(
-            f"/api/borrowings/{self.borrowing1.id}/return/"
-        )
+        response = self.client.post(f"/api/borrowings/{self.borrowing1.id}/return/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -182,11 +178,8 @@ class AdminBorrowingApiTest(TestCase):
     def test_return_already_returned_book(self):
         self.borrowing1.actual_return = timezone.now().date()
         self.borrowing1.save()
-        response = self.client.post(
-            f"/api/borrowings/{self.borrowing1.id}/return/"
-        )
+        response = self.client.post(f"/api/borrowings/{self.borrowing1.id}/return/")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.data,
-            {"error": "The borrowing has already been returned."}
+            response.data, {"error": "The borrowing has already been returned."}
         )
