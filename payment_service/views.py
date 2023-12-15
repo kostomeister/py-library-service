@@ -14,7 +14,7 @@ class PaymentViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = Payment.objects.select_related("borrowing")
+    queryset = Payment.objects.select_related("borrowing").order_by("borrowing__borrow_date")
     serializer_class = PaymentSerializer
     permission_classes = [IsAdminOrIfAuthenticatedReadOnly, ]
 
@@ -22,7 +22,6 @@ class PaymentViewSet(
         queryset = self.queryset
 
         if self.action == "list":
-            queryset = queryset.order_by("borrowing__borrow_date")
 
             if not self.request.user.is_staff:
                 queryset = queryset.filter(
@@ -35,12 +34,11 @@ class PaymentViewSet(
         return queryset
 
     def get_serializer_class(self):
-        serializer_class = self.serializer_class
 
         if self.action == "list":
-            serializer_class = PaymentListSerializer
+            return PaymentListSerializer
 
         elif self.action == "retrieve":
-            serializer_class = PaymentDetailSerializer
+            return PaymentDetailSerializer
 
-        return serializer_class
+        return PaymentSerializer
