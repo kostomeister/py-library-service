@@ -1,7 +1,7 @@
 from django.db import models
 
 from book_service.models import Book
-from config import settings
+from config.settings import dev
 
 
 class Borrowing(models.Model):
@@ -12,7 +12,7 @@ class Borrowing(models.Model):
         Book, on_delete=models.CASCADE, related_name="borrowings"
     )
     user_id = models.ForeignKey(
-        settings.dev.AUTH_USER_MODEL,
+        dev.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="borrowings",
     )
