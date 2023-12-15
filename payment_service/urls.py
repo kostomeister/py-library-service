@@ -2,7 +2,6 @@ from django.urls import path, include
 from rest_framework import routers
 from payment_service.views import (
     PaymentViewSet,
-    PaymentCreateView,
     SuccessView,
     CancelView
 )
@@ -12,7 +11,6 @@ router.register("", PaymentViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('<int:borrowing_id>/create-payment/', PaymentCreateView.as_view(), name='create-payment'),
     path('<int:borrowing_id>/success/', SuccessView.as_view(), name='payment-success'),
     path('<int:borrowing_id>/cancel/', CancelView.as_view(), name='payment-cancel'),
 ]
