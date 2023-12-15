@@ -33,6 +33,7 @@ class UserManageSerializer(UserSerializer):
         model = UserSerializer.Meta.model
         fields = UserSerializer.Meta.fields + ("bot_link", )
         read_only_fields = UserSerializer.Meta.read_only_fields + ("bot_link", )
+        extra_kwargs = UserSerializer.Meta.extra_kwargs
 
     def get_bot_link(self, value) -> str:
         user_token = token_urlsafe(16)
