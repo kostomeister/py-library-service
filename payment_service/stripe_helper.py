@@ -1,5 +1,3 @@
-import os
-
 import stripe
 from django.urls import reverse
 
@@ -7,8 +5,6 @@ from payment_service.calculation_of_the_amount_to_be_paid import (
     calculating_total_sum_for_begin_of_borrowing,
     calculating_sum_of_fine
 )
-
-stripe.api_key = os.environ.get("STRIPE_SECRET_API_KEY")
 
 
 def create_initial_session(borrowing, request):
