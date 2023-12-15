@@ -69,7 +69,7 @@ async def command_start_handler(message: Message) -> None:
     await message.answer(f"Hi, {hbold(message.from_user.username)}! \n\n"
                          f"I will help you to keep track "
                          f"of your borrowings in our library. \n\n"
-                         f"{hbold("Happy reading!")} \U0001F970")
+                         f"{hbold('Happy reading!')} \U0001F970")
 
 
 async def main() -> None:
