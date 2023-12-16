@@ -37,6 +37,7 @@ packaging==23.2
 pathspec==0.12.1
 platformdirs==4.1.0
 prompt-toolkit==3.0.43
+psycopg2-binary==2.9.9
 pydantic==2.5.2
 pydantic_core==2.14.5
 PyJWT==2.8.0
