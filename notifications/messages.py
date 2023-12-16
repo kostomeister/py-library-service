@@ -31,3 +31,11 @@ def notify_overdue_borrowing(user_id):
         f"Please return it as soon as possible."
     )
     return send_message(notification.chat_id, text)
+
+
+def send_admin_borrowing_message():
+    return None
+
+
+def send_user_payment_message():
+    return None
