@@ -5,6 +5,12 @@ from user.serializers import UserSerializer, UserManageSerializer
 
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
+    """
+    API endpoint for managing user profile information.
+
+    Allows authenticated users to retrieve and update their own user profile information.
+    """
+
     serializer_class = UserManageSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -13,4 +19,10 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
 
 class CreateUserView(generics.CreateAPIView):
+    """
+    API endpoint for creating new users.
+
+    Allows unauthenticated users to create a new user account.
+    """
+
     serializer_class = UserSerializer
