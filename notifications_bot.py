@@ -18,29 +18,28 @@ from django.apps import apps
 
 
 conf = {
-    "SECRET_KEY":
-        'django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a',
+    "SECRET_KEY": "django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a",
     "INSTALLED_APPS": [
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
+        "django.contrib.admin",
+        "django.contrib.auth",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.messages",
+        "django.contrib.staticfiles",
         "rest_framework",
         "rest_framework_simplejwt",
         "user",
         "book_service",
         "notifications",
-        "borrowing_service"
+        "borrowing_service",
     ],
     "DATABASES": {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "db.sqlite3",
         }
     },
-    'TIME_ZONE': 'UTC',
+    "TIME_ZONE": "UTC",
 }
 
 settings.configure(**conf)
@@ -59,33 +58,50 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    """
+    Handles the /start command to create a user notification in the Django database
+    and sends a welcome message to the user on Telegram.
+    Args:
+    - message (Message): The message from the user.
+
+    """
     text = message.text
-    user_id = int(text[text.find("userid") + 6:])
-    user_token = text[7:text.find("userid")]
+    user_id = int(text[text.find("userid") + 6 :])
+    user_token = text[7 : text.find("userid")]
 
-    await (sync_to_async(Notification.objects.create)
-           (user_id=user_id,
-            connect_token=user_token,
-            telegram_username=message.from_user.username,
-            chat_id=message.chat.id))
+    await sync_to_async(Notification.objects.create)(
+        user_id=user_id,
+        connect_token=user_token,
+        telegram_username=message.from_user.username,
+        chat_id=message.chat.id,
+    )
 
-    await (sync_to_async(Notification.objects.get)(user_id=user_id))
+    await sync_to_async(Notification.objects.get)(user_id=user_id)
 
-    await message.answer(f"Hi, {hbold(message.from_user.username)}! \n\n"
-                         f"I will help you to keep track "
-                         f"of your borrowings in our library. \n\n"
-                         f"{hbold('Happy reading!')} \U0001F970")
+    await message.answer(
+        f"Hi, {hbold(message.from_user.username)}! \n\n"
+        f"I will help you to keep track "
+        f"of your borrowings in our library. \n\n"
+        f"{hbold('Happy reading!')} \U0001F970"
+    )
 
 
 @dp.message(Command("myborrowings"))
 async def get_borrowings_handler(message: Message) -> None:
-    notification = await (sync_to_async(Notification.objects.get)
-                          (telegram_username=message.from_user.username))
+    """
+    Handles the /myborrowings command to fetch information about the user's current
+    borrowings and sends a message to the user with this information.
+
+    Args:
+    - message (Message): The message from the user.
+    """
+    notification = await sync_to_async(Notification.objects.get)(
+        telegram_username=message.from_user.username
+    )
 
     user_id = notification.user_id
 
-    user_borrowings = await (sync_to_async(Borrowing.objects.filter)
-                             (user_id=user_id))
+    user_borrowings = await sync_to_async(Borrowing.objects.filter)(user_id=user_id)
 
     message_text = "Here are all of your current borrowings: \n"
 
@@ -101,6 +117,9 @@ async def get_borrowings_handler(message: Message) -> None:
 
 
 async def main() -> None:
+    """
+    The main function initializing and starting the Telegram bot.
+    """
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
 
