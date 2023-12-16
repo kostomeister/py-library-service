@@ -10,9 +10,8 @@ from dotenv import load_dotenv
 from book_service.models import Book
 from book_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
-from payment_service.calculation_of_the_amount_to_be_paid import calculating_sum_of_fine
 from payment_service.models import Payment
-from payment_service.stripe_helper import create_initial_session, create_fine_session
+from payment_service.stripe_helper import create_initial_session
 from user.serializers import UserSerializer
 
 load_dotenv()

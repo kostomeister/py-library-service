@@ -5,7 +5,6 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.utils import timezone
 
 from borrowing_service.models import Borrowing
 from borrowing_service.serializers import (
