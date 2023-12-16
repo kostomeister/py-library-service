@@ -19,9 +19,15 @@ def create_profile(sender, instance, created, **kwargs):
             short_url = s.tinyurl.short(instance.session_url)
 
             notification_text = (
-                f"Hello, you сreated a new borrowing of a '{borrowing.book_id.title}'\n"
-                f"You should pay for it first: {short_url}"
+                f"Hello there, dear reader! 📚🐝\n\n"
+                f"We're excited to inform you that you've successfully created a new borrowing for '{borrowing.book_id.title}' at BuzzingPages. 📚🌟\n"
+                f"Borrowing Details:\n\n"
+                f"   - Borrow Date: {borrowing.borrow_date}\n"
+                f"   - Expected Return Date: {borrowing.expected_return_date}\n"
+                f"   - Payment Amount: {instance.money_to_pay // 100}$\n\n"
+                f"To complete the process, please make a payment using the following link: {short_url}. 💳💰\n\n"
+                f"Thank you for choosing BuzzingPages for your reading needs! 📖✨"
             )
             send_message(chat_id=notification.chat_id, notification_text=notification_text)
         except Notification.DoesNotExist:
-            print("no such user in tg")
+            print("No such user in Telegram.")
