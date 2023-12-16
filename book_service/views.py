@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from book_service.models import Book
 from book_service.permissions import IsAdminOrReadOnly
@@ -9,6 +10,8 @@ from book_service.serializers import (
 
 
 class BookViewSet(viewsets.ModelViewSet):
+    """Provides CRUD functionality for books with additional filtering by title."""
+
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -28,3 +31,15 @@ class BookViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return BookDetailSerializer
         return BookSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "title",
+                type=str,
+                description="Filter by title(ex. ?title=Witcher)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
