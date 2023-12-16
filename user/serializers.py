@@ -4,6 +4,7 @@ from secrets import token_urlsafe
 
 
 class UserSerializer(serializers.ModelSerializer):
+    bot_link = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
