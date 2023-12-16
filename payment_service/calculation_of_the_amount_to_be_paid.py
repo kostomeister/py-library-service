@@ -1,6 +1,7 @@
 import datetime
+from decimal import Decimal
 
-FINE_MULTIPLIER = 1.5
+FINE_MULTIPLIER = Decimal('1.5')
 
 
 def calculating_total_sum_for_begin_of_borrowing(

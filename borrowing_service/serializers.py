@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import stripe
@@ -102,3 +103,15 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("id", "actual_return")
+
+    def validate(self, data):
+        super().validate(data)
+
+        borrowing = self.instance
+        if borrowing.actual_return is None:
+            raise serializers.ValidationError("Actual return date is required.")
+
+        if borrowing.actual_return <= borrowing.expected_return_date:
+            raise serializers.ValidationError("Actual return date must be later than expected return date.")
+
+        return data
