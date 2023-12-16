@@ -8,6 +8,12 @@ from notifications.messages import notify_overdue_borrowing
 
 @shared_task
 def check_borrowings_overdue():
+    """
+    Asynchronous task to check for overdue borrowings and notify users.
+
+    This function retrieves borrowings with an `expected_return_date` in the past
+    and no actual return date set. It then notifies users about these overdue borrowings.
+    """
     current_date = timezone.now().date()
     borrowings = list(
         Borrowing.objects.filter(

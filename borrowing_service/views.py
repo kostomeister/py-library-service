@@ -1,5 +1,6 @@
 import datetime
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, status
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -23,6 +24,13 @@ class BorrowingViewSet(
     mixins.RetrieveModelMixin,
     GenericViewSet,
 ):
+    """
+    A ViewSet for handling borrowing operations.
+    - Provides create, list, retrieve functionality for borrowings.
+    - Supports listing borrowings and filtering by user ID or active status.
+    - Allows returning borrowed books with or without fines.
+    """
+
     serializer_class = BorrowingSerializer
     permission_classes = (IsAuthenticated,)
     queryset = Borrowing.objects.all()
@@ -53,6 +61,33 @@ class BorrowingViewSet(
 
         return queryset
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="user_id",
+                type=int,
+                description="Filter borrowings by user ID.(ex. ?user_id=1)",
+            ),
+            OpenApiParameter(
+                name="is_active",
+                type=bool,
+                description="Filter active borrowings.(ex. ?is_active=True)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        Retrieve a list of borrowings or filter by user ID or active status.
+
+        Parameters:
+        - `user_id` (int): Filter borrowings by user ID. Example: ?user_id=1
+        - `is_active` (bool): Filter active borrowings. Example: ?is_active=True
+
+        Returns:
+        - HTTP 200 OK with a list of borrowing objects.
+        """
+        return super().list(request, *args, **kwargs)
+
     @action(
         methods=["POST"],
         detail=True,
@@ -60,13 +95,25 @@ class BorrowingViewSet(
         permission_classes=[IsAdminUser],
     )
     def return_book(self, request, pk=None):
+        """
+        Return a borrowed book.
+
+        Parameters:
+        - `pk` (int): ID of the borrowing object.
+
+        Returns:
+        - HTTP 200 OK if the book was successfully returned.
+        - HTTP 400 Bad Request if there is an issue returning the book or paying a fine.
+        """
         borrowing = self.get_object()
 
         if borrowing.actual_return is not None:
             return Response(
-                {"error": "You already have a link to pay the fine"
-                          " or have successfully returned the book"},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": "You already have a link to pay the fine"
+                    " or have successfully returned the book"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         borrowing.actual_return = datetime.date.today()
@@ -78,7 +125,7 @@ class BorrowingViewSet(
             book.save()
             return Response(
                 {"message": "The book was successfully returned!"},
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
 
         session = create_fine_session(borrowing, request)
@@ -98,5 +145,5 @@ class BorrowingViewSet(
 
         return Response(
             {"message": "You must pay the fine before returning the book."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
