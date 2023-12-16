@@ -4,12 +4,11 @@ from secrets import token_urlsafe
 
 
 class UserSerializer(serializers.ModelSerializer):
-    bot_link = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ("id", "email", "password", "is_staff", "bot_link")
-        read_only_fields = ("is_staff", "bot_link")
+        fields = ("id", "email", "password", "is_staff")
+        read_only_fields = ("is_staff", )
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
     def create(self, validated_data):
@@ -25,6 +24,16 @@ class UserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+class UserManageSerializer(UserSerializer):
+    bot_link = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserSerializer.Meta.model
+        fields = UserSerializer.Meta.fields + ("bot_link", )
+        read_only_fields = UserSerializer.Meta.read_only_fields + ("bot_link", )
+        extra_kwargs = UserSerializer.Meta.extra_kwargs
 
     def get_bot_link(self, value) -> str:
         user_token = token_urlsafe(16)

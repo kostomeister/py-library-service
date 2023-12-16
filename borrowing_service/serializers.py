@@ -2,6 +2,7 @@ import datetime
 import os
 
 import stripe
+from django.db import transaction
 from rest_framework import serializers
 from django.utils import timezone
 
@@ -45,6 +46,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
             )
         return data
 
+    @transaction.atomic
     def create(self, validated_data):
         stripe.api_key = os.environ.get("STRIPE_SECRET_API_KEY")
 
