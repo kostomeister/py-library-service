@@ -1,9 +1,9 @@
-import asyncio
-import logging
 import os
 import sys
+import asyncio
+import logging
 
-import requests
+
 from aiogram.utils.markdown import *
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, BotCommand
+from aiogram.types import Message
 
 from django.conf import settings
 from django.apps import apps
@@ -32,6 +32,7 @@ conf = {
         "book_service",
         "notifications",
         "borrowing_service",
+        "payment_service",
     ],
     "DATABASES": {
         "default": {
@@ -101,7 +102,9 @@ async def get_borrowings_handler(message: Message) -> None:
 
     user_id = notification.user_id
 
-    user_borrowings = await sync_to_async(Borrowing.objects.filter)(user_id=user_id)
+    user_borrowings = await sync_to_async(Borrowing.objects.filter)(
+        user_id=user_id
+    )
 
     message_text = "Here are all of your current borrowings: \n"
 
@@ -109,7 +112,9 @@ async def get_borrowings_handler(message: Message) -> None:
         book_id = await sync_to_async(lambda: borrowing.book_id_id)()
 
         book = await sync_to_async(Book.objects.get)(id=book_id)
-        return_date = await sync_to_async(lambda: borrowing.expected_return_date)()
+        return_date = await sync_to_async(
+            lambda: borrowing.expected_return_date
+        )()
 
         message_text += f"{str(book)} - expected to return {return_date}\n"
 
