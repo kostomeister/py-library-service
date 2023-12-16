@@ -48,7 +48,6 @@ class PaymentViewSet(
 
 
 class SuccessView(APIView):
-
     def get(self, request, borrowing_id):
         payment = get_object_or_404(Payment, borrowing_id=borrowing_id)
 
@@ -56,10 +55,27 @@ class SuccessView(APIView):
         payment.money_to_pay = 0
         payment.save()
 
-        return Response({'message': 'Payment was successfully processed'}, status=status.HTTP_200_OK)
+        return Response(
+            {'message': 'Payment was successfully processed'},
+            status=status.HTTP_200_OK
+        )
+
+
+class SuccessFineView(APIView):
+    def get(self, request, borrowing_id):
+        payment = Payment.objects.get(borrowing=borrowing_id, type=Payment.TypeChoices.FINE)
+
+        payment.status = Payment.StatusChoices.PAID
+        payment.type = Payment.TypeChoices.PAYMENT
+        payment.money_to_pay = 0
+        payment.save()
+
+        return Response(
+            {'message': 'Payment for FINE was successfully processed'},
+            status=status.HTTP_200_OK
+        )
 
 
 class CancelView(APIView):
-
     def get(self, request, borrowing_id):
         return Response({'message': 'Payment can be paid later'}, status=status.HTTP_400_BAD_REQUEST)

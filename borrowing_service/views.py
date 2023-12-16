@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import mixins, status
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -12,6 +14,8 @@ from borrowing_service.serializers import (
     BorrowingDetailSerializer,
     BorrowingReturnSerializer,
 )
+from payment_service.models import Payment
+from payment_service.stripe_helper import create_fine_session
 
 
 class BorrowingViewSet(
@@ -58,20 +62,42 @@ class BorrowingViewSet(
     )
     def return_book(self, request, pk=None):
         borrowing = self.get_object()
-        if borrowing.actual_return:
+
+        if borrowing.actual_return is not None:
             return Response(
-                {"error": "The borrowing has already been returned."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": "You already have a link to pay the fine"
+                          " or have successfully returned the book"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        borrowing.actual_return = timezone.now().date()
+        borrowing.actual_return = datetime.date.today()
+        borrowing.save()
+
+        if borrowing.expected_return_date >= datetime.date.today():
+            book = borrowing.book_id
+            book.inventory += 1
+            book.save()
+            return Response(
+                {"message": "The book was successfully returned!"},
+                status=status.HTTP_200_OK
+            )
+
+        session = create_fine_session(borrowing, request)
+
+        Payment.objects.create(
+            status=Payment.StatusChoices.PENDING,
+            type=Payment.TypeChoices.FINE,
+            borrowing=borrowing,
+            session_url=session.url,
+            session_id=session.id,
+            money_to_pay=session.amount_total / 100,
+        )
 
         book = borrowing.book_id
         book.inventory += 1
-
         book.save()
-        borrowing.save()
 
         return Response(
-            {"message": "Borrowing returned successfully."}, status=status.HTTP_200_OK
+            {"message": "You must pay the fine before returning the book."},
+            status=status.HTTP_400_BAD_REQUEST
         )

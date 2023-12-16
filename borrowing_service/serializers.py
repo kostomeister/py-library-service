@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import stripe
@@ -9,8 +10,9 @@ from dotenv import load_dotenv
 from book_service.models import Book
 from book_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
+from payment_service.calculation_of_the_amount_to_be_paid import calculating_sum_of_fine
 from payment_service.models import Payment
-from payment_service.stripe_helper import create_initial_session
+from payment_service.stripe_helper import create_initial_session, create_fine_session
 from user.serializers import UserSerializer
 
 load_dotenv()
@@ -100,3 +102,15 @@ class BorrowingReturnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("id", "actual_return")
+
+    def validate(self, data):
+        super().validate(data)
+
+        borrowing = self.instance
+        if borrowing.actual_return is None:
+            raise serializers.ValidationError("Actual return date is required.")
+
+        if borrowing.actual_return <= borrowing.expected_return_date:
+            raise serializers.ValidationError("Actual return date must be later than expected return date.")
+
+        return data
