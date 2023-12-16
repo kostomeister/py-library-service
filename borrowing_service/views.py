@@ -99,7 +99,7 @@ class BorrowingViewSet(
         Return a borrowed book.
 
         Parameters:
-        - `pk` (int): ID of the borrowing object.
+        - 'pk' (int): ID of the borrowing object.
 
         Returns:
         - HTTP 200 OK if the book was successfully returned.
@@ -138,10 +138,6 @@ class BorrowingViewSet(
             session_id=session.id,
             money_to_pay=session.amount_total / 100,
         )
-
-        book = borrowing.book_id
-        book.inventory += 1
-        book.save()
 
         return Response(
             {"message": "You must pay the fine before returning the book."},

@@ -3,6 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from book_service.models import Book
 from payment_service.models import Payment
 from payment_service.permissions import IsAdminOrIfAuthenticatedReadOnly
 from payment_service.serializers import (
@@ -72,6 +73,10 @@ class SuccessView(APIView):
         payment.money_to_pay = 0
         payment.save()
 
+        book = Book.objects.get(borrowings=borrowing_id)
+        book.inventory -= 1
+        book.save()
+
         return Response(
             {"message": "Payment was successfully processed"}, status=status.HTTP_200_OK
         )
@@ -91,6 +96,10 @@ class SuccessFineView(APIView):
         payment.type = Payment.TypeChoices.PAYMENT
         payment.money_to_pay = 0
         payment.save()
+
+        book = Book.objects.get(borrowings=borrowing_id)
+        book.inventory += 1
+        book.save()
 
         return Response(
             {"message": "Payment for FINE was successfully processed"},
