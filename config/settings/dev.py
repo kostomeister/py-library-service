@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # 3d party apps
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
     "django_celery_beat",
     # custom apps
     "user",
@@ -140,9 +141,23 @@ AUTH_USER_MODEL = "user.User"
 # TODO: add confirmation by email
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library API",
+    "DESCRIPTION": "Borrow and pay for books in the library",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
 }
 
 SIMPLE_JWT = {

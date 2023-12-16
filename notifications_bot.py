@@ -18,8 +18,7 @@ from django.apps import apps
 
 
 conf = {
-    "SECRET_KEY":
-        "django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a",
+    "SECRET_KEY": "django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a",
     "INSTALLED_APPS": [
         "django.contrib.admin",
         "django.contrib.auth",
@@ -60,6 +59,13 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    """
+    Handles the /start command to create a user notification in the Django database
+    and sends a welcome message to the user on Telegram.
+    Args:
+    - message (Message): The message from the user.
+
+    """
     text = message.text
     user_id = int(text[text.find("userid") + 6 :])
     user_token = text[7 : text.find("userid")]
@@ -83,6 +89,13 @@ async def command_start_handler(message: Message) -> None:
 
 @dp.message(Command("myborrowings"))
 async def get_borrowings_handler(message: Message) -> None:
+    """
+    Handles the /myborrowings command to fetch information about the user's current
+    borrowings and sends a message to the user with this information.
+
+    Args:
+    - message (Message): The message from the user.
+    """
     notification = await sync_to_async(Notification.objects.get)(
         telegram_username=message.from_user.username
     )
@@ -109,6 +122,9 @@ async def get_borrowings_handler(message: Message) -> None:
 
 
 async def main() -> None:
+    """
+    The main function initializing and starting the Telegram bot.
+    """
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
 
