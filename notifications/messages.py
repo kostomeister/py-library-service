@@ -47,24 +47,27 @@ def send_user_payment_message(instance):
     short_url = s.tinyurl.short(instance.session_url)
 
     borrowing = instance.borrowing
-    notification = Notification.objects.get(user_id=borrowing.user_id)
+    try:
+        notification = Notification.objects.get(user_id=borrowing.user_id)
 
-    notification_text = (
-        f"Hello there, dear reader! 📚🐝\n\n"
-        f"We're excited to inform you that you've "
-        f"successfully created a new borrowing for '{borrowing.book_id.title}' at BuzzingPages. 📚🌟\n"
-        f"Borrowing Details:\n\n"
-        f"   - Borrow Date: {borrowing.borrow_date}\n"
-        f"   - Expected Return Date: {borrowing.expected_return_date}\n"
-        f"   - Payment Amount: {instance.money_to_pay}$\n\n"
-        f"To complete the process, please make a payment using the following link: {short_url}. 💳💰\n\n"
-        f"Thank you for choosing BuzzingPages for your reading needs! 📖✨"
-    )
+        notification_text = (
+            f"Hello there, dear reader! 📚🐝\n\n"
+            f"We're excited to inform you that you've "
+            f"successfully created a new borrowing for '{borrowing.book_id.title}' at BuzzingPages. 📚🌟\n"
+            f"Borrowing Details:\n\n"
+            f"   - Borrow Date: {borrowing.borrow_date}\n"
+            f"   - Expected Return Date: {borrowing.expected_return_date}\n"
+            f"   - Payment Amount: {instance.money_to_pay}$\n\n"
+            f"To complete the process, please make a payment using the following link: {short_url}. 💳💰\n\n"
+            f"Thank you for choosing BuzzingPages for your reading needs! 📖✨"
+        )
 
-    return send_message(
-        chat_id=notification.chat_id,
-        notification_text=notification_text
-    )
+        return send_message(
+            chat_id=notification.chat_id,
+            notification_text=notification_text
+        )
+    except Notification.DoesNotExist:
+        print("No such user in tg")
 
 
 def send_admin_borrowing_message(instance):
