@@ -24,10 +24,21 @@ def notify_overdue_borrowing(user_id):
     Returns:
     - Response: Response object from the send_message function call.
     """
-    notification = Notification.objects.get(user_id=user_id)
-    text = (f"Hi, {notification.telegram_username} your borrowing is overdue. "
-            f"Please return it as soon as possible.")
-    return send_message(notification.chat_id, text)
+    try:
+        notification = Notification.objects.get(user_id=user_id)
+        text = (
+            f"Hello {notification.telegram_username}! 📚🌟\n\n"
+            f"We hope this message finds you well. 😊 It looks like there's a small reminder about your recent borrowing at BuzzingPages:\n"
+            f"We kindly request you to return the book at your earliest convenience."
+            f" If you've already returned it, please accept our apologies for any inconvenience.\n\n"
+            f"Thank you for your understanding and prompt attention! 🙏📚"
+        )
+        return send_message(
+            chat_id=notification.chat_id,
+            notification_text=text
+        )
+    except Notification.DoesNotExist:
+        print("This user is not registered on Telegram")
 
 
 def send_user_payment_message(instance):
