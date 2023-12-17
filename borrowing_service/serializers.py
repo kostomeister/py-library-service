@@ -53,11 +53,6 @@ class BorrowingSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["user_id"] = user
 
-        book_id = validated_data["book_id"].id
-        book_instance = Book.objects.get(pk=book_id)
-        book_instance.inventory -= 1
-        book_instance.save()
-
         borrowing = Borrowing.objects.create(**validated_data)
 
         session = create_initial_session(borrowing, self.context["request"])
