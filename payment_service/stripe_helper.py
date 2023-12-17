@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import stripe
 from django.urls import reverse
 
@@ -79,3 +81,18 @@ def create_fine_session(borrowing, request):
         ),
     )
     return session
+
+
+def check_session_status(session_id):
+    stripe_session = stripe.checkout.Session.retrieve(
+        session_id
+    )
+
+    expires_at_timestamp = stripe_session.get("expires_at")
+    expires_at_datetime = datetime.utcfromtimestamp(expires_at_timestamp)
+    current_time = datetime.utcnow()
+
+    if current_time < expires_at_datetime:
+        return False
+    else:
+        return True
