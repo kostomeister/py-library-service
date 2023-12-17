@@ -53,6 +53,13 @@ class BorrowingSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["user_id"] = user
 
+        unpaid_payments = Payment.objects.filter(
+            borrowing__user_id=user,
+            status=Payment.StatusChoices.PENDING,
+        )
+        if unpaid_payments.exists():
+            raise serializers.ValidationError("You need to pay your previous borrowing before creating a new one")
+
         borrowing = Borrowing.objects.create(**validated_data)
 
         session = create_initial_session(borrowing, self.context["request"])
