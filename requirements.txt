@@ -66,3 +66,4 @@ vine==5.1.0
 wcwidth==0.2.12
 yarl==1.9.4
 pytest~=7.4.3
+django-debug-toolbar==4.2.0

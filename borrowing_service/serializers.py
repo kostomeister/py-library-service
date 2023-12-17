@@ -1,4 +1,3 @@
-import datetime
 import os
 
 import stripe
@@ -12,6 +11,7 @@ from book_service.models import Book
 from book_service.serializers import BookSerializer
 from borrowing_service.models import Borrowing
 from payment_service.models import Payment
+from payment_service.serializers import PaymentListSerializer
 from payment_service.stripe_helper import create_initial_session
 from user.serializers import UserSerializer
 
@@ -53,10 +53,12 @@ class BorrowingSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["user_id"] = user
 
-        book_id = validated_data["book_id"].id
-        book_instance = Book.objects.get(pk=book_id)
-        book_instance.inventory -= 1
-        book_instance.save()
+        unpaid_payments = Payment.objects.filter(
+            borrowing__user_id=user,
+            status=Payment.StatusChoices.PENDING,
+        )
+        if unpaid_payments.exists():
+            raise serializers.ValidationError("You need to pay your previous borrowing before creating a new one")
 
         borrowing = Borrowing.objects.create(**validated_data)
 
@@ -86,6 +88,7 @@ class BorrowingListSerializer(serializers.ModelSerializer):
 class BorrowingDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer(source="user_id", read_only=True)
     book = BookSerializer(source="book_id", read_only=True)
+    payments = PaymentListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Borrowing
@@ -96,6 +99,7 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
             "actual_return",
             "book",
             "user",
+            "payments"
         )
 
 

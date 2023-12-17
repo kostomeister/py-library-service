@@ -46,7 +46,7 @@ class BorrowingViewSet(
 
     def get_queryset(self):
         user = self.request.user
-        queryset = self.queryset
+        queryset = self.queryset.select_related("book_id", "user_id")
         user_id = self.request.query_params.get("user_id")
         is_active = self.request.query_params.get("is_active")
 
@@ -56,8 +56,11 @@ class BorrowingViewSet(
         if user_id:
             queryset = queryset.filter(user_id=user_id)
 
-        if is_active:
+        if is_active == "True":
             queryset = queryset.filter(actual_return__isnull=True)
+
+        if is_active == "False":
+            queryset = queryset.filter(actual_return__isnull=False)
 
         return queryset
 
@@ -99,7 +102,7 @@ class BorrowingViewSet(
         Return a borrowed book.
 
         Parameters:
-        - `pk` (int): ID of the borrowing object.
+        - 'pk' (int): ID of the borrowing object.
 
         Returns:
         - HTTP 200 OK if the book was successfully returned.
@@ -138,10 +141,6 @@ class BorrowingViewSet(
             session_id=session.id,
             money_to_pay=session.amount_total / 100,
         )
-
-        book = borrowing.book_id
-        book.inventory += 1
-        book.save()
 
         return Response(
             {"message": "You must pay the fine before returning the book."},
