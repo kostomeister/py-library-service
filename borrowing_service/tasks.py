@@ -1,9 +1,13 @@
 from borrowing_service.models import Borrowing
 
+from celery import Celery
 from celery import shared_task
 from django.utils import timezone
 
 from notifications.messages import notify_overdue_borrowing
+
+
+app = Celery("tasks", backend="redis://localhost", broker="redis://localhost")
 
 
 @shared_task
