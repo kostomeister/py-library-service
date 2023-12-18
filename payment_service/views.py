@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from book_service.models import Book
+from borrowing_service.models import Borrowing
+from notifications.messages import successful_payment_message, successful_fine_payment_message
 from payment_service.models import Payment
 from payment_service.permissions import IsAdminOrIfAuthenticatedReadOnly
 from payment_service.serializers import (
@@ -67,7 +69,8 @@ class SuccessView(APIView):
     """
 
     def get(self, request, borrowing_id):
-        payment = get_object_or_404(Payment, borrowing_id=borrowing_id)
+        borrowing = Borrowing.objects.get(id=borrowing_id)
+        payment = Payment.objects.get(borrowing=borrowing)
 
         payment.status = Payment.StatusChoices.PAID
         payment.money_to_pay = 0
@@ -76,6 +79,8 @@ class SuccessView(APIView):
         book = Book.objects.get(borrowings=borrowing_id)
         book.inventory -= 1
         book.save()
+
+        successful_payment_message(borrowing)
 
         return Response(
             {"message": "Payment was successfully processed"}, status=status.HTTP_200_OK
@@ -88,8 +93,10 @@ class SuccessFineView(APIView):
     """
 
     def get(self, request, borrowing_id):
+        borrowing = Borrowing.objects.get(id=borrowing_id)
+
         payment = Payment.objects.get(
-            borrowing=borrowing_id, type=Payment.TypeChoices.FINE
+            borrowing=borrowing, type=Payment.TypeChoices.FINE
         )
 
         payment.status = Payment.StatusChoices.PAID
@@ -100,6 +107,8 @@ class SuccessFineView(APIView):
         book = Book.objects.get(borrowings=borrowing_id)
         book.inventory += 1
         book.save()
+
+        successful_fine_payment_message(borrowing)
 
         return Response(
             {"message": "Payment for FINE was successfully processed"},
