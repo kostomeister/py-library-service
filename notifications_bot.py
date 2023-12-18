@@ -20,7 +20,7 @@ from django.apps import apps
 
 
 conf = {
-    "SECRET_KEY": "django-insecure-kvk=ah*jq3^3479#u40#ioz*b5+c5f0e-8hktlsaamtkdhz88a",
+    "SECRET_KEY": os.environ.get("DJANGO_SECRET_KEY"),
     "INSTALLED_APPS": [
         "django.contrib.admin",
         "django.contrib.auth",
@@ -38,8 +38,11 @@ conf = {
     ],
     "DATABASES": {
         "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "db.sqlite3",
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.environ["POSTGRES_HOST"],
+            "NAME": os.environ["POSTGRES_DB"],
+            "USER": os.environ["POSTGRES_USER"],
+            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
         }
     },
     "TIME_ZONE": "UTC",
@@ -69,21 +72,24 @@ async def command_start_handler(message: Message) -> None:
 
     """
     text = message.text
-    user_id = int(text[text.find("userid") + 6:])
-    user_token = text[7:text.find("userid")]
+    user_id = int(text[text.find("userid") + 6 :])
+    user_token = text[7 : text.find("userid")]
 
-    await (sync_to_async(Notification.objects.create)
-           (user_id=user_id,
-            connect_token=user_token,
-            telegram_username=message.from_user.username,
-            chat_id=message.chat.id))
+    await sync_to_async(Notification.objects.create)(
+        user_id=user_id,
+        connect_token=user_token,
+        telegram_username=message.from_user.username,
+        chat_id=message.chat.id,
+    )
 
-    await (sync_to_async(Notification.objects.get)(user_id=user_id))
+    await sync_to_async(Notification.objects.get)(user_id=user_id)
 
-    await message.answer(f"Hi, {hbold(message.from_user.username)}! \n\n"
-                         f"I will help you to keep track "
-                         f"of your borrowings in our library. \n\n"
-                         f"{hbold('Happy reading!')} \U0001F970")
+    await message.answer(
+        f"Hi, {hbold(message.from_user.username)}! \n\n"
+        f"I will help you to keep track "
+        f"of your borrowings in our library. \n\n"
+        f"{hbold('Happy reading!')} \U0001F970"
+    )
 
 
 @dp.message(Command("myborrowings"))
@@ -101,8 +107,7 @@ async def get_borrowings_handler(message: Message) -> None:
 
     user_id = notification.user_id
 
-    user_borrowings = await (sync_to_async(Borrowing.objects.filter)
-                             (user_id=user_id))
+    user_borrowings = await sync_to_async(Borrowing.objects.filter)(user_id=user_id)
 
     message_text = "Here are all of your current borrowings: \n"
 
